@@ -3,125 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netflix Member | Premium Portal</title>
+    <title>Netflix Member | Status Bar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #050505; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        body { background-color: #050505; font-family: 'Inter', sans-serif; color: white; }
+        .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .netflix-red { color: #E50914; }
         .bg-netflix-red { background-color: #E50914; }
-        input:focus { border-color: #E50914; box-shadow: 0 0 15px rgba(229, 9, 20, 0.2); }
+        .progress-fill { transition: width 2s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
     </style>
 </head>
-<body class="text-white min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-md w-full z-10">
-        <div class="text-center mb-10 animate__animated animate__fadeInDown">
-            <h1 class="text-6xl font-black netflix-red tracking-tighter italic">NETFLIX</h1>
-            <p class="text-zinc-500 text-[10px] tracking-[0.4em] uppercase mt-2 font-bold">Secure Database System</p>
+    <div class="max-w-md w-full">
+        <div class="text-center mb-10">
+            <h1 class="text-6xl font-black netflix-red italic tracking-tighter">NETFLIX</h1>
+            <p class="text-white/30 text-[10px] tracking-[0.4em] uppercase mt-2">Member Expiry Tracker</p>
         </div>
 
-        <div class="glass p-8 rounded-[2.5rem] animate__animated animate__fadeInUp">
-            <div class="space-y-6">
+        <div class="glass-panel p-6 rounded-[2rem] mb-6 shadow-2xl">
+            <div class="flex gap-2">
                 <input type="text" id="kodeInput" maxlength="6" 
-                    class="w-full bg-black/50 border border-zinc-800 rounded-2xl py-5 text-center text-3xl font-mono tracking-[0.4em] outline-none transition-all"
-                    placeholder="000000">
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-center text-2xl font-mono outline-none focus:border-red-600 transition-all"
+                    placeholder="KODE6">
+                <button onclick="cariData()" class="bg-netflix-red px-8 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-red-700 transition-all">CEK</button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-6">
+            <div class="inline-block w-8 h-8 border-2 border-white/10 border-t-red-600 rounded-full animate-spin"></div>
+        </div>
+
+        <div id="resultArea" class="hidden animate__animated animate__fadeInUp">
+            <div class="glass-panel rounded-[2.5rem] overflow-hidden p-8">
                 
-                <button onclick="cariData()" 
-                    class="w-full bg-netflix-red hover:bg-red-700 py-4 rounded-2xl font-black tracking-widest transition-all active:scale-95">
-                    CEK DATA
-                </button>
-            </div>
+                <div class="mb-8">
+                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest">Pelanggan</span>
+                    <h2 id="resNama" class="text-3xl font-black mt-1">---</h2>
+                </div>
 
-            <div id="loading" class="hidden mt-8 text-center">
-                <div class="inline-block w-8 h-8 border-[3px] border-red-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
+                <div class="bg-black/40 p-6 rounded-3xl border border-white/5 mb-8">
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-[10px] font-black text-white/50 uppercase tracking-widest">Sisa Masa Aktif</span>
+                        <span id="resSisaHari" class="text-sm font-black italic">-- Hari Lagi</span>
+                    </div>
+                    
+                    <div class="w-full h-4 bg-white/10 rounded-full overflow-hidden">
+                        <div id="progressBar" class="progress-fill h-full rounded-full shadow-[0_0_15px_rgba(229,9,20,0.3)]"></div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-3 text-[9px] text-white/20 font-bold uppercase tracking-tighter">
+                        <span>Aman</span>
+                        <span>Expire</span>
+                    </div>
+                </div>
 
-            <div id="resultCard" class="hidden mt-8 animate__animated animate__zoomIn">
-                <div class="bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800">
-                    <div class="space-y-4 text-sm">
-                        <div class="flex justify-between border-b border-zinc-800/50 pb-2">
-                            <span class="text-zinc-500 text-[10px] uppercase">Pelanggan</span>
-                            <span id="resNama" class="font-bold">---</span>
-                        </div>
-                        <div class="flex justify-between border-b border-zinc-800/50 pb-2">
-                            <span class="text-zinc-500 text-[10px] uppercase">Paket</span>
-                            <span id="resPaket" class="text-red-500 font-bold">---</span>
-                        </div>
-                        <div class="flex justify-between border-b border-zinc-800/50 pb-2">
-                            <span class="text-zinc-500 text-[10px] uppercase">Exp Date</span>
-                            <span id="resMasa" class="font-medium">---</span>
-                        </div>
-                        <div class="text-center pt-2">
-                            <span id="resStatus" class="px-4 py-1 rounded-full text-[10px] font-black border">AKTIF</span>
-                        </div>
+                <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                    <div>
+                        <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Paket</p>
+                        <p id="resPaket" class="text-sm font-bold text-white/90">---</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Tanggal Expire</p>
+                        <p id="resMasa" class="text-sm font-bold text-red-500">---</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <p id="errorMsg" class="hidden mt-6 text-center text-red-500 text-xs font-bold animate__animated animate__shakeX">
-                KODE TIDAK TERDAFTAR
-            </p>
+        <div id="errorMsg" class="hidden mt-6 p-6 rounded-3xl bg-red-600/10 border border-red-600/20 text-center animate__animated animate__shakeX">
+            <p class="text-red-500 text-[10px] font-black uppercase tracking-widest">Kode Tidak Terdaftar</p>
         </div>
     </div>
 
     <script>
-        // Logika untuk menangkap variabel Vercel atau Fallback ke URL manual
-        const CSV_URL = "" || "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyfu7t_tPqHlZzGWeOSnAtemC0LfCsHfe8rV0QmYaQ2xyaOUTKvkMloIEw3Bd3Uptuz0BVKk1LZpqq/pub?gid=969553215&single=true&output=csv";
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyfu7t_tPqHlZzGWeOSnAtemC0LfCsHfe8rV0QmYaQ2xyaOUTKvkMloIEw3Bd3Uptuz0BVKk1LZpqq/pub?gid=969553215&single=true&output=csv";
 
-        async function cariData() {
+        function cariData() {
             const kode = document.getElementById('kodeInput').value.trim();
-            const card = document.getElementById('resultCard');
+            const resultArea = document.getElementById('resultArea');
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('errorMsg');
 
-            if (kode.length < 6) return alert("Masukkan 6 digit kode!");
+            if (!kode) return;
 
-            card.classList.add('hidden');
+            resultArea.classList.add('hidden');
             errorMsg.classList.add('hidden');
             loading.classList.remove('hidden');
 
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
-                skipEmptyLines: true,
                 complete: function(results) {
                     loading.classList.add('hidden');
-                    const allData = results.data;
-                    
-                    // Kita cari dengan pembersihan spasi (trim) agar tidak error
-                    const user = allData.find(row => {
-                        // Mencari di kolom 'Kode' (pastikan di Sheet namanya "Kode")
-                        return String(row.Kode || row.kode).trim() === kode;
-                    });
+                    const user = results.data.find(row => String(row.Kode || row.kode).trim() === kode);
 
                     if (user) {
-                        document.getElementById('resNama').innerText = user.Nama || user.nama || "User";
-                        document.getElementById('resPaket').innerText = user.Paket || user.paket || "-";
-                        document.getElementById('resMasa').innerText = user["Masa Aktif"] || user.masa_aktif || "-";
-                        
-                        const status = (user.Status || user.status || "").toLowerCase();
-                        const statusEl = document.getElementById('resStatus');
-                        statusEl.innerText = status.toUpperCase();
-                        
-                        if(status === 'aktif') {
-                            statusEl.className = "px-4 py-1 rounded-full text-[10px] font-black border border-green-500/20 bg-green-500/10 text-green-500";
-                        } else {
-                            statusEl.className = "px-4 py-1 rounded-full text-[10px] font-black border border-red-500/20 bg-red-500/10 text-red-500";
-                        }
-
-                        card.classList.remove('hidden');
+                        updateUI(user);
+                        resultArea.classList.remove('hidden');
                     } else {
                         errorMsg.classList.remove('hidden');
                     }
-                },
-                error: function() {
-                    loading.classList.add('hidden');
-                    alert("Gagal koneksi ke database publik Google.");
                 }
             });
+        }
+
+        function updateUI(user) {
+            document.getElementById('resNama').innerText = user.Nama;
+            document.getElementById('resPaket').innerText = user.Paket;
+            document.getElementById('resMasa').innerText = user["Masa Aktif"];
+            
+            const tglHabis = new Date(user["Masa Aktif"]);
+            const tglSekarang = new Date();
+            
+            // Normalkan tanggal (hapus jam)
+            tglSekarang.setHours(0,0,0,0);
+            tglHabis.setHours(0,0,0,0);
+
+            // Hitung selisih hari
+            const selisihMs = tglHabis - tglSekarang;
+            const sisaHari = Math.ceil(selisihMs / (1000 * 60 * 60 * 24));
+
+            // Logika Bar: Patokan 30 hari. 
+            // Jika sisa 30 hari -> Bar 0% (Kosong/Aman)
+            // Jika sisa 0 hari -> Bar 100% (Penuh/Bahaya)
+            let persentase = ((30 - sisaHari) / 30) * 100;
+            
+            // Batasan persentase
+            if (persentase < 5) persentase = 5; 
+            if (persentase > 100) persentase = 100;
+
+            const bar = document.getElementById('progressBar');
+            const sisaTeks = document.getElementById('resSisaHari');
+
+            // Set lebar bar
+            bar.style.width = "0%"; // Reset dulu untuk animasi
+            setTimeout(() => {
+                bar.style.width = persentase + "%";
+                
+                // Ganti warna berdasarkan urgensi
+                if (sisaHari > 14) {
+                    bar.style.backgroundColor = "#22c55e"; // Hijau
+                    sisaTeks.className = "text-sm font-black italic text-green-400";
+                } else if (sisaHari > 7) {
+                    bar.style.backgroundColor = "#eab308"; // Kuning
+                    sisaTeks.className = "text-sm font-black italic text-yellow-400";
+                } else {
+                    bar.style.backgroundColor = "#E50914"; // Merah
+                    sisaTeks.className = "text-sm font-black italic text-red-500 animate-pulse";
+                }
+            }, 100);
+
+            // Teks Sisa Hari
+            if (sisaHari > 0) {
+                sisaTeks.innerText = sisaHari + " HARI LAGI";
+            } else if (sisaHari === 0) {
+                sisaTeks.innerText = "BERAKHIR HARI INI";
+            } else {
+                sisaTeks.innerText = "SUDAH EXPIRED";
+                bar.style.width = "100%";
+            }
         }
     </script>
 </body>
