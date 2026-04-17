@@ -1,1 +1,144 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Member | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { background-color: #080808; font-family: 'Inter', sans-serif; }
+        .glass { 
+            background: rgba(20, 20, 20, 0.6); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.08); 
+        }
+        .netflix-red { color: #E50914; }
+        .bg-netflix-red { background-color: #E50914; }
+        .shimmer-card:hover {
+            box-shadow: 0 0 30px rgba(229, 9, 20, 0.1);
+            border-color: rgba(229, 9, 20, 0.3);
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-md w-full z-10">
+        <div class="text-center mb-10 animate__animated animate__fadeInDown">
+            <h1 class="text-6xl font-black netflix-red tracking-tighter italic">NETFLIX</h1>
+            <p class="text-zinc-500 text-[10px] tracking-[0.4em] uppercase mt-2 font-bold">Secure Member Portal</p>
+        </div>
+
+        <div class="glass p-8 rounded-[2.5rem] animate__animated animate__fadeInUp">
+            <div class="space-y-6">
+                <input type="text" id="kodeInput" maxlength="6" 
+                    class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-5 text-center text-3xl font-mono tracking-[0.5em] outline-none focus:border-red-600 transition-all"
+                    placeholder="000000">
+                
+                <button onclick="cariData()" 
+                    class="w-full bg-netflix-red hover:bg-red-700 py-4 rounded-2xl font-black tracking-widest transition-all active:scale-95 shadow-xl shadow-red-900/20">
+                    VERIFIKASI KODE
+                </button>
+            </div>
+
+            <div id="loading" class="hidden mt-8 text-center">
+                <div class="inline-block w-8 h-8 border-[3px] border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+            <div id="resultCard" class="hidden mt-8 animate__animated animate__zoomIn">
+                <div class="shimmer-card bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800 transition-all">
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-500 uppercase tracking-tighter text-[10px]">Nama Member</span>
+                            <span id="resNama" class="font-bold">---</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-500 uppercase tracking-tighter text-[10px]">Paket</span>
+                            <span id="resPaket" class="text-red-500 font-bold">---</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-500 uppercase tracking-tighter text-[10px]">Masa Aktif</span>
+                            <span id="resMasa" class="font-medium text-zinc-300">---</span>
+                        </div>
+                        <div class="pt-2 text-center">
+                            <span id="resStatus" class="inline-block px-4 py-1 rounded-full bg-green-500/10 text-green-500 text-[10px] font-black border border-green-500/20">AKTIF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p id="errorMsg" class="hidden mt-6 text-center text-red-500 text-xs font-bold animate__animated animate__shakeX">
+                KODE TIDAK DITEMUKAN
+            </p>
+        </div>
+
+        <div class="mt-10 flex justify-center gap-6 opacity-50 hover:opacity-100 transition-opacity">
+            <a id="waLink" href="#" target="_blank" class="text-zinc-400 hover:text-green-500"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+            <a id="tgLink" href="#" target="_blank" class="text-zinc-400 hover:text-blue-400"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.303.48-.429-.012-1.253-.245-1.865-.444-.754-.245-1.351-.374-1.299-.79.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Mengambil Variabel Lingkungan dari Vercel
+         * Jika di local (development), ganti URL string kosong dengan link CSV Anda
+         */
+        const CSV_URL = window.process?.env?.NEXT_PUBLIC_CSV_URL || ""; 
+        const WA_ADMIN = "6281234567890";
+        const TG_ADMIN = "UsernameAdmin";
+
+        // Setup Links
+        document.getElementById('waLink').href = `https://wa.me/${WA_ADMIN}`;
+        document.getElementById('tgLink').href = `https://t.me/${TG_ADMIN}`;
+
+        async function cariData() {
+            const kode = document.getElementById('kodeInput').value;
+            const card = document.getElementById('resultCard');
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (kode.length < 6) return alert("Gunakan 6 digit!");
+            if (!CSV_URL) return alert("Sistem Error: Link database tidak ditemukan.");
+
+            card.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            // Parsing CSV menggunakan PapaParse
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    loading.classList.add('hidden');
+                    const allData = results.data;
+                    
+                    // Mencari baris yang kolom "Kode"-nya cocok
+                    const user = allData.find(row => String(row.Kode).trim() === kode);
+
+                    if (user) {
+                        document.getElementById('resNama').innerText = user.Nama;
+                        document.getElementById('resPaket').innerText = user.Paket;
+                        document.getElementById('resMasa').innerText = user["Masa Aktif"];
+                        
+                        const statusEl = document.getElementById('resStatus');
+                        statusEl.innerText = user.Status.toUpperCase();
+                        statusEl.className = user.Status.toLowerCase() === 'aktif' ? 
+                            "bg-green-500/10 text-green-500 text-[10px] px-4 py-1 rounded-full font-black border border-green-500/20" : 
+                            "bg-red-500/10 text-red-500 text-[10px] px-4 py-1 rounded-full font-black border border-red-500/20";
+
+                        card.classList.remove('hidden');
+                    } else {
+                        errorMsg.classList.remove('hidden');
+                    }
+                },
+                error: function() {
+                    loading.classList.add('hidden');
+                    alert("Gagal memuat database publik.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
