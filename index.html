@@ -1,172 +1,229 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netflix Member | Status Bar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { background-color: #050505; font-family: 'Inter', sans-serif; color: white; }
-        .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .netflix-red { color: #E50914; }
-        .bg-netflix-red { background-color: #E50914; }
-        .progress-fill { transition: width 2s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Netflix Member Tracker</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+*{ font-family:'Inter',sans-serif; }
+
+body{
+    background: radial-gradient(circle at top right,#1a1a1a 0%,#090909 40%,#000 100%);
+}
+
+.card{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(18px);
+}
+
+.progressFill{
+    width:0%;
+    transition:all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fadeIn{
+    animation:fade .4s ease;
+}
+
+@keyframes fade{
+    from{opacity:0;transform:translateY(10px)}
+    to{opacity:1;transform:translateY(0)}
+}
+
+/* Menghilangkan ring fokus default agar lebih cantik */
+input:focus {
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.15);
+}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-md w-full">
-        <div class="text-center mb-10">
-            <h1 class="text-6xl font-black netflix-red italic tracking-tighter">NETFLIX</h1>
-            <p class="text-white/30 text-[10px] tracking-[0.4em] uppercase mt-2">Member Expiry Tracker</p>
+<body class="min-h-screen text-white px-4 py-6 flex justify-center">
+
+<div class="w-full max-w-sm">
+
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-black tracking-tight text-red-600 italic">NETFLIX</h1>
+        <p class="text-[11px] text-white/40 uppercase tracking-[0.35em] mt-2">
+            Member Status Portal
+        </p>
+    </div>
+
+    <div class="card rounded-3xl p-4 mb-5 shadow-2xl">
+        <div class="relative">
+            <input
+                id="kodeInput"
+                maxlength="6"
+                type="text"
+                inputmode="numeric"
+                placeholder="Input Kode & Tekan Enter"
+                class="w-full h-16 rounded-2xl bg-white/5 border border-white/10 px-4 text-center text-xl font-bold outline-none focus:border-red-600 transition-all placeholder:text-white/20 placeholder:font-normal"
+            />
         </div>
+        <p class="text-center text-[9px] text-white/20 mt-3 uppercase tracking-widest font-bold">Tekan Enter untuk Mencari</p>
+    </div>
 
-        <div class="glass-panel p-6 rounded-[2rem] mb-6 shadow-2xl">
-            <div class="flex gap-2">
-                <input type="text" id="kodeInput" maxlength="6" 
-                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-center text-2xl font-mono outline-none focus:border-red-600 transition-all"
-                    placeholder="KODE6">
-                <button onclick="cariData()" class="bg-netflix-red px-8 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-red-700 transition-all">CEK</button>
+    <div id="loading" class="hidden text-center py-8">
+        <div class="w-8 h-8 border-2 border-white/10 border-t-red-600 rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs text-white/40 mt-3 tracking-widest uppercase">Sinkronisasi Data...</p>
+    </div>
+
+    <div id="resultArea" class="hidden fadeIn">
+        <div class="card rounded-[2.5rem] p-6 shadow-2xl">
+
+            <div class="mb-6">
+                <p class="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-1 font-bold">Member Name</p>
+                <h2 id="resNama" class="text-3xl font-black tracking-tight">---</h2>
             </div>
-        </div>
 
-        <div id="loading" class="hidden text-center py-6">
-            <div class="inline-block w-8 h-8 border-2 border-white/10 border-t-red-600 rounded-full animate-spin"></div>
-        </div>
+            <div class="bg-black/40 rounded-3xl p-5 mb-6 border border-white/5 shadow-inner">
 
-        <div id="resultArea" class="hidden animate__animated animate__fadeInUp">
-            <div class="glass-panel rounded-[2.5rem] overflow-hidden p-8">
-                
-                <div class="mb-8">
-                    <span class="text-[10px] text-white/40 uppercase font-black tracking-widest">Pelanggan</span>
-                    <h2 id="resNama" class="text-3xl font-black mt-1">---</h2>
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold">Status</span>
+                    <span id="resSisaHari" class="text-sm font-black italic">---</span>
                 </div>
 
-                <div class="bg-black/40 p-6 rounded-3xl border border-white/5 mb-8">
-                    <div class="flex justify-between items-end mb-4">
-                        <span class="text-[10px] font-black text-white/50 uppercase tracking-widest">Sisa Masa Aktif</span>
-                        <span id="resSisaHari" class="text-sm font-black italic">-- Hari Lagi</span>
-                    </div>
-                    
-                    <div class="w-full h-4 bg-white/10 rounded-full overflow-hidden">
-                        <div id="progressBar" class="progress-fill h-full rounded-full shadow-[0_0_15px_rgba(229,9,20,0.3)]"></div>
-                    </div>
-                    
-                    <div class="flex justify-between mt-3 text-[9px] text-white/20 font-bold uppercase tracking-tighter">
-                        <span>Aman</span>
-                        <span>Expire</span>
-                    </div>
+                <div class="h-4 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div id="progressBar" class="progressFill h-full rounded-full"></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
-                    <div>
-                        <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Paket</p>
-                        <p id="resPaket" class="text-sm font-bold text-white/90">---</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Tanggal Expire</p>
-                        <p id="resMasa" class="text-sm font-bold text-red-500">---</p>
-                    </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 text-sm">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-1 font-bold">Plan</p>
+                    <p id="resPaket" class="font-bold text-white/90">---</p>
+                </div>
+
+                <div class="text-right">
+                    <p class="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-1 font-bold">Expiry Date</p>
+                    <p id="resMasa" class="font-bold text-red-500">---</p>
                 </div>
             </div>
-        </div>
 
-        <div id="errorMsg" class="hidden mt-6 p-6 rounded-3xl bg-red-600/10 border border-red-600/20 text-center animate__animated animate__shakeX">
-            <p class="text-red-500 text-[10px] font-black uppercase tracking-widest">Kode Tidak Terdaftar</p>
         </div>
     </div>
 
-    <script>
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyfu7t_tPqHlZzGWeOSnAtemC0LfCsHfe8rV0QmYaQ2xyaOUTKvkMloIEw3Bd3Uptuz0BVKk1LZpqq/pub?gid=969553215&single=true&output=csv";
+    <div id="errorMsg" class="hidden mt-5 card rounded-3xl p-5 text-center border-red-500/20">
+        <p class="text-red-500 font-black text-xs uppercase tracking-widest">Akses Ditolak: Kode Salah</p>
+    </div>
 
-        function cariData() {
-            const kode = document.getElementById('kodeInput').value.trim();
-            const resultArea = document.getElementById('resultArea');
-            const loading = document.getElementById('loading');
-            const errorMsg = document.getElementById('errorMsg');
+</div>
 
-            if (!kode) return;
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyfu7t_tPqHlZzGWeOSnAtemC0LfCsHfe8rV0QmYaQ2xyaOUTKvkMloIEw3Bd3Uptuz0BVKk1LZpqq/pub?gid=969553215&single=true&output=csv";
 
-            resultArea.classList.add('hidden');
-            errorMsg.classList.add('hidden');
-            loading.classList.remove('hidden');
+function cariData(){
+    const input = document.getElementById("kodeInput");
+    const kode = input.value.trim();
 
-            Papa.parse(CSV_URL, {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    loading.classList.add('hidden');
-                    const user = results.data.find(row => String(row.Kode || row.kode).trim() === kode);
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("resultArea");
+    const error = document.getElementById("errorMsg");
 
-                    if (user) {
-                        updateUI(user);
-                        resultArea.classList.remove('hidden');
-                    } else {
-                        errorMsg.classList.remove('hidden');
-                    }
-                }
-            });
-        }
+    if(!kode) return;
 
-        function updateUI(user) {
-            document.getElementById('resNama').innerText = user.Nama;
-            document.getElementById('resPaket').innerText = user.Paket;
-            document.getElementById('resMasa').innerText = user["Masa Aktif"];
-            
-            const tglHabis = new Date(user["Masa Aktif"]);
-            const tglSekarang = new Date();
-            
-            // Normalkan tanggal (hapus jam)
-            tglSekarang.setHours(0,0,0,0);
-            tglHabis.setHours(0,0,0,0);
+    // Sembunyikan elemen lama & tampilkan loading
+    result.classList.add("hidden");
+    error.classList.add("hidden");
+    loading.classList.remove("hidden");
+    input.blur(); // Menutup keyboard di HP setelah enter
 
-            // Hitung selisih hari
-            const selisihMs = tglHabis - tglSekarang;
-            const sisaHari = Math.ceil(selisihMs / (1000 * 60 * 60 * 24));
+    Papa.parse(CSV_URL,{
+        download:true,
+        header:true,
+        complete:function(res){
+            loading.classList.add("hidden");
 
-            // Logika Bar: Patokan 30 hari. 
-            // Jika sisa 30 hari -> Bar 0% (Kosong/Aman)
-            // Jika sisa 0 hari -> Bar 100% (Penuh/Bahaya)
-            let persentase = ((30 - sisaHari) / 30) * 100;
-            
-            // Batasan persentase
-            if (persentase < 5) persentase = 5; 
-            if (persentase > 100) persentase = 100;
+            const user = res.data.find(row => 
+                String(row.Kode || row.kode || "").trim() === kode
+            );
 
-            const bar = document.getElementById('progressBar');
-            const sisaTeks = document.getElementById('resSisaHari');
-
-            // Set lebar bar
-            bar.style.width = "0%"; // Reset dulu untuk animasi
-            setTimeout(() => {
-                bar.style.width = persentase + "%";
-                
-                // Ganti warna berdasarkan urgensi
-                if (sisaHari > 14) {
-                    bar.style.backgroundColor = "#22c55e"; // Hijau
-                    sisaTeks.className = "text-sm font-black italic text-green-400";
-                } else if (sisaHari > 7) {
-                    bar.style.backgroundColor = "#eab308"; // Kuning
-                    sisaTeks.className = "text-sm font-black italic text-yellow-400";
-                } else {
-                    bar.style.backgroundColor = "#E50914"; // Merah
-                    sisaTeks.className = "text-sm font-black italic text-red-500 animate-pulse";
-                }
-            }, 100);
-
-            // Teks Sisa Hari
-            if (sisaHari > 0) {
-                sisaTeks.innerText = sisaHari + " HARI LAGI";
-            } else if (sisaHari === 0) {
-                sisaTeks.innerText = "BERAKHIR HARI INI";
-            } else {
-                sisaTeks.innerText = "SUDAH EXPIRED";
-                bar.style.width = "100%";
+            if(user){
+                updateUI(user);
+                result.classList.remove("hidden");
+            }else{
+                error.classList.remove("hidden");
             }
+        },
+        error: function() {
+            loading.classList.add("hidden");
+            alert("Gagal memuat database.");
         }
-    </script>
+    });
+}
+
+function updateUI(user){
+    document.getElementById("resNama").innerText = user.Nama || "-";
+    document.getElementById("resPaket").innerText = user.Paket || "-";
+    document.getElementById("resMasa").innerText = user["Masa Aktif"] || "-";
+
+    const now = new Date();
+    const exp = new Date(user["Masa Aktif"]);
+
+    now.setHours(0,0,0,0);
+    exp.setHours(0,0,0,0);
+
+    const diff = Math.ceil((exp - now)/(1000*60*60*24));
+
+    // Logika Bar: Semakin dekat expire, semakin penuh (0 hari = 100%)
+    let percent = ((30 - diff) / 30) * 100;
+    if(percent < 5) percent = 5;
+    if(percent > 100) percent = 100;
+
+    const bar = document.getElementById("progressBar");
+    const text = document.getElementById("resSisaHari");
+
+    // Reset bar untuk animasi ulang
+    bar.style.width = "0%";
+
+    setTimeout(()=>{
+        bar.style.width = percent + "%";
+        
+        if(diff > 14){
+            bar.className = "progressFill h-full rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]";
+            text.className = "text-sm font-black italic text-green-400";
+            text.innerText = diff + " Hari Lagi";
+        }
+        else if(diff > 7){
+            bar.className = "progressFill h-full rounded-full bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.4)]";
+            text.className = "text-sm font-black italic text-yellow-300";
+            text.innerText = diff + " Hari Lagi";
+        }
+        else if(diff > 0){
+            bar.className = "progressFill h-full rounded-full bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]";
+            text.className = "text-sm font-black italic text-red-500 animate-pulse";
+            text.innerText = diff + " Hari Lagi";
+        }
+        else if(diff === 0){
+            bar.style.width = "100%";
+            bar.className = "progressFill h-full rounded-full bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.6)]";
+            text.className = "text-sm font-black italic text-red-500 animate-pulse";
+            text.innerText = "Berakhir Hari Ini";
+        }
+        else{
+            bar.style.width = "100%";
+            bar.className = "progressFill h-full rounded-full bg-zinc-800";
+            text.className = "text-sm font-black italic text-zinc-500";
+            text.innerText = "Expired";
+        }
+    }, 200);
+}
+
+/* EVENT LISTENER UNTUK ENTER */
+document.getElementById("kodeInput").addEventListener("keypress", function(e){
+    if(e.key === "Enter") {
+        cariData();
+    }
+});
+</script>
+
 </body>
 </html>
