@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Netflix Member Tracker</title>
+<title>V E R G I L | Netflix Tracker</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -30,7 +30,6 @@
         transition: all 1.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Animasi Kilauan (Shimmer) pada Tombol */
     .btn-shimmer {
         position: relative;
         overflow: hidden;
@@ -54,9 +53,7 @@
         100% { left: 140%; }
     }
 
-    .fadeIn {
-        animation: fade 0.5s ease forwards;
-    }
+    .fadeIn { animation: fade 0.5s ease forwards; }
 
     @keyframes fade {
         from { opacity: 0; transform: translateY(15px); }
@@ -71,8 +68,8 @@
 
     <div class="text-center mb-10">
         <h1 class="text-6xl font-black tracking-tighter text-red-600 italic">NETFLIX</h1>
-        <p class="text-[10px] text-white/30 uppercase tracking-[0.4em] mt-2 font-bold">
-            Customer Status Portal
+        <p class="text-[10px] text-white/40 uppercase tracking-[0.6em] mt-2 font-black">
+            V E R G I L 
         </p>
     </div>
 
@@ -94,30 +91,48 @@
         </button>
     </div>
 
+    <div id="landingArea" class="space-y-6 fadeIn">
+        <div class="card rounded-[2rem] p-6 border-white/10">
+            <h3 class="text-sm font-black uppercase tracking-widest text-red-500 mb-3">Tentang Website</h3>
+            <p class="text-xs text-white/60 leading-relaxed mb-4">
+                Selamat datang di portal resmi <strong>V E R G I L</strong>. Website ini dirancang untuk mempermudah pelanggan dalam memantau masa aktif langganan Netflix secara real-time. Cukup masukkan kode unik Anda untuk melihat status paket.
+            </p>
+            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+                <p class="text-[10px] font-bold text-white/40 uppercase mb-2 tracking-tighter">Info Pemesanan / Perpanjang:</p>
+                <p class="text-xs font-medium text-white/80 leading-relaxed">
+                    Ingin berlangganan atau masa aktif habis? Hubungi admin resmi kami untuk proses cepat & terpercaya.
+                </p>
+            </div>
+        </div>
+        
+        <a id="orderBtn" href="#" target="_blank" class="flex items-center justify-between w-full px-6 py-4 rounded-2xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl">
+            <span>Pesan Paket Baru</span>
+            <span class="text-lg">→</span>
+        </a>
+    </div>
+
     <div id="loading" class="hidden text-center py-10">
         <div class="w-10 h-10 border-2 border-white/10 border-t-red-600 rounded-full animate-spin mx-auto"></div>
-        <p class="text-[9px] text-white/40 uppercase tracking-[0.3em] mt-4">Menghubungkan Server...</p>
+        <p class="text-[9px] text-white/40 uppercase tracking-[0.3em] mt-4 font-bold">Menghubungkan Server V E R G I L...</p>
     </div>
 
     <div id="resultArea" class="hidden fadeIn">
-        <div class="card rounded-[2.5rem] p-7 shadow-2xl">
+        <div class="card rounded-[2.5rem] p-7 shadow-2xl border-white/10">
 
             <div class="mb-7">
-                <p class="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-1 font-bold">Pemilik Akun</p>
+                <p class="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-1 font-bold">Member Account</p>
                 <h2 id="resNama" class="text-3xl font-black tracking-tight">---</h2>
             </div>
 
-            <div class="bg-black/40 rounded-3xl p-5 mb-7 border border-white/5">
+            <div class="bg-black/40 rounded-3xl p-5 mb-7 border border-white/5 shadow-inner">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold">Sisa Masa Aktif</span>
+                    <span class="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold">Status Berlangganan</span>
                     <span id="resSisaHari" class="text-xs font-black italic">---</span>
                 </div>
 
                 <div class="h-3 bg-white/5 rounded-full overflow-hidden p-[2px]">
                     <div id="progressBar" class="progressFill h-full rounded-full"></div>
                 </div>
-                
-                <p class="text-[8px] text-white/10 mt-3 text-center uppercase tracking-widest font-medium">Auto-Sync Dashboard</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-7">
@@ -127,33 +142,36 @@
                 </div>
 
                 <div class="p-4 bg-white/5 rounded-2xl border border-white/5 text-right">
-                    <p class="text-[8px] uppercase tracking-[0.15em] text-white/30 mb-1 font-bold">Berakhir</p>
+                    <p class="text-[8px] uppercase tracking-[0.15em] text-white/30 mb-1 font-bold">Expire</p>
                     <p id="resMasa" class="text-[11px] font-bold text-red-500">---</p>
                 </div>
             </div>
 
             <a id="waLink" href="#" target="_blank" 
-               class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
+               class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl border border-white/10 bg-white/10 hover:bg-white/20 transition-all active:scale-95 shadow-lg">
                 <span class="flex h-2 w-2 relative">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Hubungi Admin</span>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Hubungi V E R G I L</span>
             </a>
 
         </div>
     </div>
 
-    <div id="errorMsg" class="hidden mt-6 card rounded-2xl p-5 text-center border-red-900/30">
+    <div id="errorMsg" class="hidden mt-6 card rounded-2xl p-5 text-center border-red-900/40">
         <p class="text-red-500 font-black text-[10px] uppercase tracking-[0.2em]">Kode Akses Tidak Valid</p>
     </div>
 
 </div>
 
 <script>
-// --- KONFIGURASI ---
+// --- KONFIGURASI (ENV) ---
+const ADMIN_NUMBER = "6282223031661"; // Nomor Admin V E R G I L
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyfu7t_tPqHlZzGWeOSnAtemC0LfCsHfe8rV0QmYaQ2xyaOUTKvkMloIEw3Bd3Uptuz0BVKk1LZpqq/pub?gid=969553215&single=true&output=csv";
-const ADMIN_NUMBER = "6281234567890"; // Ganti dengan nomor WhatsApp Anda
+
+// Set Initial Link Pemesanan
+document.getElementById("orderBtn").href = `https://wa.me/${ADMIN_NUMBER}?text=${encodeURIComponent('Halo V E R G I L, saya ingin melakukan pemesanan paket Netflix baru.')}`;
 
 function cariData() {
     const inputField = document.getElementById("kodeInput");
@@ -161,10 +179,12 @@ function cariData() {
     const loading = document.getElementById("loading");
     const result = document.getElementById("resultArea");
     const error = document.getElementById("errorMsg");
+    const landing = document.getElementById("landingArea");
 
     if(!kode) return;
 
-    // Reset view
+    // Reset view & Hide Landing
+    landing.classList.add("hidden");
     result.classList.add("hidden");
     error.classList.add("hidden");
     loading.classList.remove("hidden");
@@ -175,7 +195,6 @@ function cariData() {
         complete: function(res) {
             loading.classList.add("hidden");
 
-            // Cari user (Case insensitive)
             const user = res.data.find(row => 
                 String(row.Kode || row.kode || row.KODE).trim().toUpperCase() === kode.toUpperCase()
             );
@@ -185,6 +204,7 @@ function cariData() {
                 result.classList.remove("hidden");
             } else {
                 error.classList.remove("hidden");
+                landing.classList.remove("hidden"); // Tampilkan kembali jika error agar tidak kosong
             }
         }
     });
@@ -195,7 +215,6 @@ function updateUI(user, kode) {
     document.getElementById("resPaket").innerText = user.Paket || "-";
     document.getElementById("resMasa").innerText = user["Masa Aktif"] || "-";
 
-    // Hitung Sisa Hari
     const now = new Date();
     const exp = new Date(user["Masa Aktif"]);
     now.setHours(0,0,0,0);
@@ -203,7 +222,7 @@ function updateUI(user, kode) {
 
     const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
 
-    // Logika Bar: Semakin dekat expire, semakin PENUH (Bar berpatokan pada sisa hari)
+    // Perhitungan Persentase Bar (30 hari sebagai max)
     let percent = ((30 - diff) / 30) * 100;
     if(percent < 5) percent = 5; 
     if(percent > 100) percent = 100;
@@ -211,7 +230,6 @@ function updateUI(user, kode) {
     const bar = document.getElementById("progressBar");
     const text = document.getElementById("resSisaHari");
 
-    // Reset Bar untuk animasi masuk
     bar.style.width = "0%";
     
     setTimeout(() => {
@@ -246,12 +264,10 @@ function updateUI(user, kode) {
         }
     }, 200);
 
-    // Setup Link WhatsApp
-    const message = encodeURIComponent(`Halo Admin, saya ${user.Nama} (Kode: ${kode}). Ingin bertanya tentang paket Netflix saya.`);
-    document.getElementById("waLink").href = `https://wa.me/${6282223031661}?text=${message}`;
+    const message = encodeURIComponent(`Halo V E R G I L, saya ${user.Nama} (Kode: ${kode}). Ingin bertanya tentang paket Netflix saya.`);
+    document.getElementById("waLink").href = `https://wa.me/${ADMIN_NUMBER}?text=${message}`;
 }
 
-// Input Enter Trigger
 document.getElementById("kodeInput").addEventListener("keypress", function(e) {
     if(e.key === "Enter") {
         e.preventDefault();
